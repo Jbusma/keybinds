@@ -1,0 +1,112 @@
+#SKHD STUFF
+
+# if you're having troubles finding key codes for a key just type skhd --observe in a terminal and type a key. Pretty cool! Or just check the wiki.
+
+## HYPER == SHIFT + CMD + ALT + OPTION
+
+## Quickly restart the yabai launch agent
+ctrl + alt + cmd - r : launchctl kickstart -k "gui/${UID}/homebrew.mxcl.yabai"
+
+## Close active application
+#yabai -m query --spaces | jq -re '.[] | select(."is-visible").index' | xargs -I{} yabai -m query --windows --space {} | jq -sre 'add | sort_by(.display, .frame.x, .frame.y, .id) | nth(index(map(select(."has-focus"))) - 1).id' | xargs -I{} yabai -m window --focus {}
+#hyper - m : $(yabai -m window $(yabai -m query --windows --window | jq -re ".id") --close)
+#hyper - m : index=yabai -m query --spaces | jq -re '.[] | select(."is-visible").index' | xargs -I{} yabai -m query --windows --space {} | jq -sre 'add | sort_by(.display, .frame.x, .frame.y, .id) | nth(index(map(select(."has-focus"))) - 1).id' && \
+#yabai -m window --focus ${index} && \
+#yabai -m window --close $((${index}+1))  
+hyper - m : yabai -m window --close && yabai -m window --focus recent && say "waddup"
+
+
+## open terminal
+hyper - return : open -na Terminal.app
+## open activity monitor
+ctrl + alt - backspace : open -na 'Activity Monitor.app'
+
+## swap window
+#hyper - y : yabai -m window --swap west
+hyper - p : yabai -m window --swap east # 0x21 is the "[" key
+
+
+## increase window size
+hyper - 7 : yabai -m window --resize left:-100:0
+hyper - 9 : yabai -m window --resize bottom:0:100
+hyper - 8 : yabai -m window --resize top:0:-100
+hyper - 0 : yabai -m window --resize right:100:0
+
+## decrease window size
+ctrl - 7  : yabai -m window --resize left:100:0
+ctrl - 8  : yabai -m window --resize bottom:0:-100
+ctrl - 9  : yabai -m window --resize top:0:100
+ctrl - 0  : yabai -m window --resize right:-100:0
+
+## rotate tree 90
+hyper - r : yabai -m space --rotate 90
+
+## flip the tree vertically
+hyper - 4 : yabai -m space --mirror y-axis
+# mirror tree y-axis
+#alt - y : yabai -m space --mirror y-axis
+## mirror tree x-axis
+#alt - x : yabai -m space --mirror x-axis
+
+
+## toggle window fullscreen zoom
+hyper - f : yabai -m window --toggle zoom-fullscreen
+
+# cycle through windows
+hyper - y : yabai -m query --spaces | jq -re '.[] | select(."is-visible").index' | xargs -I{} yabai -m query --windows --space {} | jq -sre 'add | sort_by(.display, .frame.x, .frame.y, .id) | nth(index(map(select(."has-focus"))) - 1).id' | xargs -I{} yabai -m window --focus {}
+hyper - o : yabai -m query --spaces | jq -re '.[] | select(."is-visible").index' | xargs -I{} yabai -m query --windows --space {} | jq -sre 'add | sort_by(.display, .frame.x, .frame.y, .id) | reverse | nth(index(map(select(."has-focus"))) - 1).id' | xargs -I{} yabai -m window --focus {}
+hyper - u : yabai -m window --focus stack.prev || yabai -m window --focus stack.last
+hyper - i : yabai -m window --focus stack.next || yabai -m window --focus stack.first
+
+#alt - p : yabai -m window --focus stack.prev || yabai -m window --focus prev || yabai -m window --focus last
+# go to each window WITHOUT going into a stack
+# ctrl + alt + cmd + lshift - i : yabai -m query --spaces | jq -re ".[] | select(.visible == 1).index" | xargs -I{} yabai -m query --windows --space {} | jq -re "[.[] | select((.\"stack-index\" <= 1) and (.app != \"Hammerspoon\"))]" | jq -sre "add | sort_by(.display, .frame.x, .frame.y, .id) | nth(index(map(select(.focused == 1))) - 1).id" | xargs -I{} yabai -m window --focus {}
+ctrl + alt + cmd + lshift - i : yabai -m query --spaces | jq -re ".[] | select(.visible == 1).index" | xargs -I{} yabai -m query --windows --space {} | jq -re "[.[] | select(.app != \"Hammerspoon\")]" | jq -sre "add | sort_by(.display, .frame.x, .frame.y, .id) | nth(index(map(select(.focused == 1))) - 1).id" | xargs -I{} yabai -m window --focus {}
+
+
+# go to each window WITHOUT going into a stack
+# ctrl + alt + cmd + lshift - o : yabai -m query --spaces | jq -re ".[] | select(.visible == 1).index" | xargs -I{} yabai -m query --windows --space {} | jq -re "[.[] | select((.\"stack-index\" <= 1) and (.app != \"Hammerspoon\"))]" | jq -sre "add | sort_by(.display, .frame.x, .frame.y, .id) | reverse | nth(index(map(select(.focused == 1))) - 1).id" | xargs -I{} yabai -m window --focus {}
+ctrl + alt + cmd + lshift - o : yabai -m query --spaces | jq -re ".[] | select(.visible == 1).index" | xargs -I{} yabai -m query --windows --space {} | jq -re "[.[] | select(.app != \"Hammerspoon\")]" | jq -sre "add | sort_by(.display, .frame.x, .frame.y, .id) | reverse | nth(index(map(select(.focused == 1))) - 1).id" | xargs -I{} yabai -m window --focus {}
+
+# Toggle foucus on a stack
+ctrl + alt + cmd + lshift - return : yabai -m window --focus stack.next || yabai -m window --focus stack.first
+
+#create a stack
+ctrl + alt + cmd - j : yabai -m query --windows --window | jq -re "." | xargs -I{} yabai -m window 1 --stack {}
+# stack next window onto current window
+ctrl + alt + cmd - k : window=$(yabai -m query --windows --window | jq -r '.id') && yabai -m window east --stack $window || (yabai -m window $window --toggle float && yabai -m window $window --toggle float)
+
+## float / unfloat window and center on screen
+#alt - t : yabai -m window --toggle float;\
+#yabai -m window --grid 4:4:1:1:2:2 ## toggle sticky alt - s : yabai -m window --toggle sticky ## toggle sticky, float and resize to picture-in-picture size alt - p : yabai -m window --toggle sticky;\ yabai -m window --grid 5:5:4:0:1:1 ## change layout of desktop ctrl + alt - a : yabai -m space --layout bsp ctrl + alt - d : yabai -m space --layout float
+
+## toggle window split type
+#alt - e : yabai -m window --toggle split
+
+
+## create desktop, move window and follow focus
+hyper - n : yabai -m space --create && \
+index="$(yabai -m query --spaces --display | jq 'map(select(."native-fullscreen" == 0))[-1].index')" && \
+yabai -m window --space "${index}" && \
+yabai -m space --focus "${index}"
+
+## create desktop and follow focus
+#hyper - n : yabai -m space --create && \
+#index="$(yabai -m query --spaces --display | jq 'map(select(."native-fullscreen" == 0))[-1].index')" && \
+#yabai -m space --focus "${index}"
+
+## move window
+hyper - a : yabai -m window --move rel:-20:0
+hyper - s : yabai -m window --move rel:0:20
+hyper - w : yabai -m window --move rel:0:-20
+hyper - d : yabai -m window --move rel:20:0
+
+## Swap window
+hyper - h : yabai -m window --warp west
+hyper - j : yabai -m window --warp north
+hyper - k : yabai -m window --warp south
+hyper - l : yabai -m window --warp east
+
+
+ctrl - f : say "who let the dogs out"
+hyper - p : say ""
